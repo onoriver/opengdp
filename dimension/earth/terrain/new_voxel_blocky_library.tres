@@ -1,0 +1,9 @@
+[gd_resource type="VoxelBlockyLibrary" load_steps=3 format=3 uid="uid://0br1fi3py7nx"]
+
+[sub_resource type="VoxelBlockyModelCube" id="VoxelBlockyModelCube_5083l"]
+color = Color(0, 1, 1, 1)
+
+[sub_resource type="VoxelBlockyModelCube" id="VoxelBlockyModelCube_1egqq"]
+
+[resource]
+models = Array[VoxelBlockyModel]([SubResource("VoxelBlockyModelCube_5083l"), SubResource("VoxelBlockyModelCube_1egqq")])

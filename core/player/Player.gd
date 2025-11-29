@@ -1,13 +1,13 @@
 extends CharacterBody3D
 
 var speed
-const WALK_SPEED = 4.3
-const SPRINT_SPEED = 6.5
-const JUMP_VELOCITY = 5.8
+const WALK_SPEED = 7.4
+const SPRINT_SPEED = 11.2
+const JUMP_VELOCITY = 16
 const SENSITIVITY = 0.004
 
 #bob variables
-const BOB_FREQ = 2.4
+const BOB_FREQ = 1.2
 const BOB_AMP = 0.08
 var t_bob = 0.0
 
@@ -16,15 +16,18 @@ const BASE_FOV = 75.0
 const FOV_CHANGE = 1.5
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = 20
+var gravity = 52
 
 @onready var head = $Head
 @onready var camera = $Head/Camera3D
 
-
+@onready var terrain_lod_terrain: VoxelLodTerrain = $"../VoxelLodTerrain"
+@onready var voxel_tool= terrain_lod_terrain.get_voxel_tool()
+@onready var ray_cast_3d: RayCast3D = $Head/Camera3D/RayCast3D
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
+	voxel_tool = terrain_lod_terrain.get_voxel_tool()
+	voxel_tool.channel = VoxelBuffer.CHANNEL_SDF
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -72,8 +75,20 @@ func _physics_process(delta):
 	camera.fov = lerp(camera.fov, target_fov, delta * 8.0)
 	
 	move_and_slide()
-
-
+	
+	var target_pos = ray_cast_3d.get_collision_point()
+	if not ray_cast_3d.is_colliding():
+		target_pos = ray_cast_3d.global_position-ray_cast_3d.global_basis.z*5
+	if Input.is_action_pressed("breake"):
+		voxel_tool.mode = VoxelTool.MODE_REMOVE
+		voxel_tool.grow_sphere(target_pos,2,2)	
+	if Input.is_action_pressed("place"):
+		voxel_tool.mode = VoxelTool.MODE_ADD
+		voxel_tool.grow_sphere(target_pos, 2, 2)
+		voxel_tool.mode = VoxelTool.MODE_TEXTURE_PAINT
+		voxel_tool.texture_index = 1
+		voxel_tool.texture_opacity = 1.0
+		voxel_tool.do_sphere(target_pos, 2)
 func _headbob(time) -> Vector3:
 	var pos = Vector3.ZERO
 	pos.y = sin(time * BOB_FREQ) * BOB_AMP

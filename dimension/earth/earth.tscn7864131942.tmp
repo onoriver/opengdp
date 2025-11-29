@@ -1,0 +1,66 @@
+[gd_scene load_steps=13 format=3 uid="uid://b5swpafe0e65g"]
+
+[ext_resource type="Script" uid="uid://dp3ttq14t6880" path="res://dimension/earth/daynight.gd" id="1_13d63"]
+[ext_resource type="PackedScene" uid="uid://cpnrooe0coq4o" path="res://core/player/player.res" id="1_p8oot"]
+[ext_resource type="VoxelGeneratorScript" uid="uid://0yjdl8flui7b" path="res://dimension/earth/terrain.tres" id="3_q8shm"]
+[ext_resource type="Script" uid="uid://d1y28ydgnjrsq" path="res://dimension/earth/terrain_Generate.gd" id="5_q8shm"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q8shm"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_l7kbd"]
+sky_material = SubResource("ProceduralSkyMaterial_q8shm")
+
+[sub_resource type="Environment" id="Environment_8xcb0"]
+background_mode = 2
+sky = SubResource("Sky_l7kbd")
+tonemap_mode = 2
+ssr_enabled = true
+ssr_max_steps = 272
+sdfgi_enabled = true
+sdfgi_cascades = 8
+sdfgi_min_cell_size = 0.07930908
+sdfgi_y_scale = 2
+glow_enabled = true
+
+[sub_resource type="VoxelBlockyModelCube" id="VoxelBlockyModelCube_vdwhi"]
+color = Color(1, 0, 1, 1)
+
+[sub_resource type="VoxelBlockyLibrary" id="VoxelBlockyLibrary_13d63"]
+models = Array[VoxelBlockyModel]([SubResource("VoxelBlockyModelCube_vdwhi")])
+
+[sub_resource type="VoxelMesherBlocky" id="VoxelMesherBlocky_l7kbd"]
+library = SubResource("VoxelBlockyLibrary_13d63")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_13d63"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_3p8ni"]
+
+[node name="earth" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_8xcb0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9921147, 0.12533323, 0, -0.12533323, 0.9921147, 0, 0, 0)
+light_energy = 0.525
+shadow_enabled = true
+script = ExtResource("1_13d63")
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("1_p8oot")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0.967659, 48.48793, -0.039052725)
+
+[node name="VoxelTerrain" type="VoxelTerrain" parent="."]
+generator = ExtResource("3_q8shm")
+mesher = SubResource("VoxelMesherBlocky_l7kbd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(999, 0, 0, 0, 1, 0, 0, 0, 999, 0, -20, 0)
+visible = false
+material_override = SubResource("ShaderMaterial_13d63")
+mesh = SubResource("BoxMesh_3p8ni")
+
+[node name="Node" type="Node" parent="." node_paths=PackedStringArray("terrain")]
+script = ExtResource("5_q8shm")
+terrain = NodePath("../VoxelTerrain")
